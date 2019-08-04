@@ -11,10 +11,10 @@
 
 #if MIMALLOC//[
 #include "./mimalloc.h"
-#elif JEMALLOC//][
-#include "./jemalloc.h"
 #elif TCMALLOC//][
 #include "./tcmalloc.h"
+#elif JEMALLOC//][
+#include "./jemalloc.h"
 #endif//]
 
 #if 0
@@ -105,10 +105,10 @@ void Alloc(Value& rv, std::size_t s)
         rv.s = s;
         #if MIMALLOC
         rv.p = mi_malloc(rv.s);
-        #elif JEMALLOC
-        rv.p = je_malloc(rv.s);
         #elif TCMALLOC
         rv.p = tc_malloc(rv.s);
+        #elif JEMALLOC
+        rv.p = je_malloc(rv.s);
         #else
         rv.p = malloc(rv.s);
         #endif
@@ -141,10 +141,10 @@ void Free(Value& rv)
     {   // 
         #if MIMALLOC
         mi_free(rv.p);
-        #elif JEMALLOC
-        je_free(rv.p);
         #elif TCMALLOC
         tc_free(rv.p);
+        #elif JEMALLOC
+        je_free(rv.p);
         #else
         free(rv.p);
         #endif
