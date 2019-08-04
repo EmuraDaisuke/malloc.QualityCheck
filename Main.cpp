@@ -37,7 +37,7 @@ static constexpr std::size_t N = bit(7);
 static constexpr std::size_t S = bit(10);
 static constexpr std::size_t T = bit(3);
 static constexpr std::size_t B0 = 0;
-static constexpr std::size_t B1 = 16+1;
+static constexpr std::size_t B1 = 24+1;
 
 
 
