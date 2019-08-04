@@ -111,15 +111,15 @@ class Thread final {
     
     
     private:
-        std::atomic_bool mb;
-        std::atomic_size_t mf;
-        std::atomic<Value> mv;
-        std::thread mt;
-        
         std::mutex mMutexWait;
         std::mutex mMutexCall;
         std::condition_variable mWait;
         std::condition_variable mCall;
+        
+        std::atomic_bool mb;
+        std::atomic_size_t mf;
+        std::atomic<Value> mv;
+        std::thread mt;
 };
 
 
