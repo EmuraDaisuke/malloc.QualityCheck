@@ -6,6 +6,8 @@
 #include <atomic>
 #include <thread>
 #include <array>
+#include <mutex>
+#include <condition_variable>
 #include "./CLog.h"
 #include "./Lapse.h"
 
@@ -53,8 +55,9 @@ class Thread final {
     public:
         ~Thread() noexcept
         {
-            Wait();
             mb.store(false, std::memory_order_release);
+            Call(nullptr, Value{});
+            Wait();
             if (mt.joinable()) mt.join();
         }
         
@@ -65,32 +68,54 @@ class Thread final {
         ,mt(std::thread(&Thread::Work, this))
         {}
         
-        void Wait() const noexcept
+        void Wait() noexcept
         {
-            while (mf.load(std::memory_order_acquire));
+            std::unique_lock<std::mutex> Lock(mMutexWait);
+            while (mf.load(std::memory_order_acquire)) mWait.wait(Lock);
         }
         
         void Call(Func f, Value v) noexcept
         {
             Wait();
-            mv.store(v, std::memory_order_release);
-            mf.store(reinterpret_cast<std::size_t>(f), std::memory_order_release);
+            
+            {   // 
+                std::lock_guard<std::mutex> Lock(mMutexCall);
+                mf.store(reinterpret_cast<std::size_t>(f), std::memory_order_release);
+                mv.store(v, std::memory_order_release);
+                mCall.notify_one();
+            }
         }
     
     private:
         void Work() noexcept
         {
-            while (mb.load(std::memory_order_acquire)){
-                auto f = reinterpret_cast<Func>(mf.load(std::memory_order_acquire));
+            bool b;
+            std::size_t f;
+            do {
+                {   // 
+                    std::unique_lock<std::mutex> Lock(mMutexCall);
+                    while ((b = mb.load(std::memory_order_acquire)) && (f = mf.load(std::memory_order_acquire)) == 0) mCall.wait(Lock);
+                }
+                
                 if (f){
-                    f(mv.load(std::memory_order_acquire));
+                    reinterpret_cast<Thread::Func>(f)(mv.load(std::memory_order_acquire));
                     mf.store(0, std::memory_order_release);
                 }
-            }
+                
+                {   // 
+                    std::lock_guard<std::mutex> Lock(mMutexWait);
+                    mWait.notify_one();
+                }
+            } while (b);
         }
     
     
     private:
+        std::mutex mMutexCall;
+        std::mutex mMutexWait;
+        std::condition_variable mCall;
+        std::condition_variable mWait;
+        
         std::atomic_bool mb;
         std::atomic_size_t mf;
         std::atomic<Value> mv;
@@ -118,6 +143,7 @@ void Alloc(Value& rv, std::size_t s)
     #if CHECK
     {   // 
         auto c = reinterpret_cast<uint8_t>(rv.p);
+        assert(rv.p);
         std::memset(rv.p, c, rv.s);
     }
     #endif
@@ -133,6 +159,7 @@ void Free(Value& rv)
         auto p = static_cast<uint8_t*>(rv.p);
         auto c = reinterpret_cast<uint8_t>(p);
         bool b = true;
+        assert(rv.p);
         for (; s; --s, ++p) b &= (c == *p);
         assert(b);
     }
