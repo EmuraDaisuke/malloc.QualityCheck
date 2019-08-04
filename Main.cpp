@@ -222,7 +222,6 @@ void testE(std::size_t s)
 void testF(std::size_t s)
 {
     std::array<Thread, T> at;
-    std::size_t mt = at.size()-1;
     Thread::Func f = [](Value v){ Free(v); };
     
     std::array<Value, S> av;
@@ -232,7 +231,7 @@ void testF(std::size_t s)
         for (auto& v : av){
             Alloc(v, s);
             at[ot].Call(f, v);
-            ot = ++ot & mt;
+            ot = ++ot % at.size();
         }
     }
     for (auto& t : at) t.Wait();
@@ -243,7 +242,6 @@ void testF(std::size_t s)
 void testG(std::size_t s)
 {
     std::array<Thread, T> at;
-    std::size_t mt = at.size()-1;
     Thread::Func f = [](Value v){ Free(v); };
     
     std::array<Value, S> av;
@@ -254,7 +252,7 @@ void testG(std::size_t s)
         std::size_t ot = 0;
         for (auto& v : av){
             at[ot].Call(f, v);
-            ot = ++ot & mt;
+            ot = ++ot % at.size();
         }
     }
     for (auto& t : at) t.Wait();
