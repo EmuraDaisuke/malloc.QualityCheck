@@ -31,8 +31,8 @@ constexpr std::size_t KiB(std::size_t v){ return (v<<10); }
 constexpr std::size_t MiB(std::size_t v){ return (v<<20); }
 constexpr std::size_t GiB(std::size_t v){ return (v<<30); }
 
-static constexpr std::size_t N = 8;//KiB(1);
-static constexpr std::size_t S = 8;//KiB(1);
+static constexpr std::size_t N = bit(7);
+static constexpr std::size_t S = bit(10);
 static constexpr std::size_t T = bit(3);
 static constexpr std::size_t B0 = 0;
 static constexpr std::size_t B1 = 16+1;
