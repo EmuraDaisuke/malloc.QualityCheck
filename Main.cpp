@@ -33,11 +33,34 @@ constexpr std::size_t KiB(std::size_t v){ return (v<<10); }
 constexpr std::size_t MiB(std::size_t v){ return (v<<20); }
 constexpr std::size_t GiB(std::size_t v){ return (v<<30); }
 
-static constexpr std::size_t N = bit(7);
-static constexpr std::size_t S = bit(10);
 static constexpr std::size_t T = bit(3);
+
+#if CATEGORY == 1
+static constexpr std::size_t N = bit(10);
+static constexpr std::size_t S = bit(15);
 static constexpr std::size_t B0 = 0;
+static constexpr std::size_t B1 = 10+1;
+#elif CATEGORY == 2
+static constexpr std::size_t N = bit(9);
+static constexpr std::size_t S = bit(11);
+static constexpr std::size_t B0 = 11+1;
+static constexpr std::size_t B1 = 15+1;
+#elif CATEGORY == 3
+static constexpr std::size_t N = bit(8);
+static constexpr std::size_t S = bit(7);
+static constexpr std::size_t B0 = 16+1;
 static constexpr std::size_t B1 = 20+1;
+#elif CATEGORY == 4
+static constexpr std::size_t N = bit(7);
+static constexpr std::size_t S = bit(3);
+static constexpr std::size_t B0 = 21+1;
+static constexpr std::size_t B1 = 25+1;
+#else
+static constexpr std::size_t N = bit(7);
+static constexpr std::size_t S = bit(3);
+static constexpr std::size_t B0 = 0;
+static constexpr std::size_t B1 = 25+1;
+#endif
 
 
 
@@ -338,52 +361,55 @@ void test_G(Value v)
 
 int main(int argc, char* argv[])
 {
-    std::array<Thread, T> at;
-    Value v;
-    
-    for (auto b = B0; b <= B1; ++b){
-        v.s = size(b);
-        Lapse l("test_A", v.s);
-        for (auto& t : at) t.Call(test_A, v);
-        for (auto& t : at) t.Wait();
-    }
-    
-    for (auto b = B0; b <= B1; ++b){
-        v.s = size(b);
-        Lapse l("test_B", v.s);
-        for (auto& t : at) t.Call(test_B, v);
-        for (auto& t : at) t.Wait();
-    }
-    
-    for (auto b = B0; b <= B1; ++b){
-        v.s = size(b);
-        Lapse l("test_C", v.s);
-        for (auto& t : at) t.Call(test_C, v);
-        for (auto& t : at) t.Wait();
-    }
-    
-    for (auto b = B0; b <= B1; ++b){
-        v.s = size(b);
-        Lapse l("test_D", v.s);
-        for (auto& t : at) t.Call(test_D, v);
-        for (auto& t : at) t.Wait();
-    }
-    
-    for (auto b = B0; b <= B1; ++b){
-        v.s = size(b);
-        Lapse l("test_E", v.s);
-        for (auto& t : at) t.Call(test_E, v);
-        for (auto& t : at) t.Wait();
-    }
-    
-    for (auto b = B0; b <= B1; ++b){
-        v.s = size(b);
-        test_F(v);
-    }
-    
-    for (auto b = B0; b <= B1; ++b){
-        v.s = size(b);
-        test_G(v);
+    {   // 
+        Value v;
+        std::array<Thread, T> at;
+        Lapse l("total", 0);
+        
+        for (auto b = B0; b <= B1; ++b){
+            v.s = size(b);
+            Lapse l("test_A", v.s);
+            for (auto& t : at) t.Call(test_A, v);
+            for (auto& t : at) t.Wait();
+        }
+        
+        for (auto b = B0; b <= B1; ++b){
+            v.s = size(b);
+            Lapse l("test_B", v.s);
+            for (auto& t : at) t.Call(test_B, v);
+            for (auto& t : at) t.Wait();
+        }
+        
+        for (auto b = B0; b <= B1; ++b){
+            v.s = size(b);
+            Lapse l("test_C", v.s);
+            for (auto& t : at) t.Call(test_C, v);
+            for (auto& t : at) t.Wait();
+        }
+        
+        for (auto b = B0; b <= B1; ++b){
+            v.s = size(b);
+            Lapse l("test_D", v.s);
+            for (auto& t : at) t.Call(test_D, v);
+            for (auto& t : at) t.Wait();
+        }
+        
+        for (auto b = B0; b <= B1; ++b){
+            v.s = size(b);
+            Lapse l("test_E", v.s);
+            for (auto& t : at) t.Call(test_E, v);
+            for (auto& t : at) t.Wait();
+        }
+        
+        for (auto b = B0; b <= B1; ++b){
+            v.s = size(b);
+            test_F(v);
+        }
+        
+        for (auto b = B0; b <= B1; ++b){
+            v.s = size(b);
+            test_G(v);
+        }
     }
     
     clog("***");
