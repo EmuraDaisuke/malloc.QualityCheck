@@ -174,15 +174,15 @@ void Alloc(Value& rv, std::size_t s)
 
 
 
-void Free(Value& rv)
+void Free(Value v)
 {
     #if CHECK
     {   // 
-        auto s = rv.s;
-        auto p = static_cast<uint8_t*>(rv.p);
+        auto s = v.s;
+        auto p = static_cast<uint8_t*>(v.p);
         auto c = reinterpret_cast<uint8_t>(p);
         bool b = true;
-        assert(rv.p);
+        assert(v.p);
         for (; s; --s, ++p) b &= (c == *p);
         assert(b);
     }
@@ -190,15 +190,15 @@ void Free(Value& rv)
     
     {   // 
         #if MIMALLOC
-        mi_free(rv.p);
+        mi_free(v.p);
         #elif TCMALLOC
-        tc_free(rv.p);
+        tc_free(v.p);
         #elif JEMALLOC
-        je_free(rv.p);
+        je_free(v.p);
         #else
-        free(rv.p);
+        free(v.p);
         #endif
-        CLOG("Free ", rv.p, rv.s);
+        CLOG("Free ", v.p, v.s);
     }
 }
 
@@ -272,15 +272,13 @@ void testE(std::size_t s)
 void testF(std::size_t s)
 {
     std::array<Thread, T> at;
-    Thread::Func f = [](Value v){ Free(v); };
-    
     std::array<Value, S> av;
     Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         std::size_t ot = 0;
         for (auto& v : av){
             Alloc(v, s);
-            at[ot].Call(f, v);
+            at[ot].Call(Free, v);
             ot = ++ot % at.size();
         }
     }
@@ -292,8 +290,6 @@ void testF(std::size_t s)
 void testG(std::size_t s)
 {
     std::array<Thread, T> at;
-    Thread::Func f = [](Value v){ Free(v); };
-    
     std::array<Value, S> av;
     Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
@@ -301,7 +297,7 @@ void testG(std::size_t s)
         
         std::size_t ot = 0;
         for (auto& v : av){
-            at[ot].Call(f, v);
+            at[ot].Call(Free, v);
             ot = ++ot % at.size();
         }
     }
@@ -310,49 +306,49 @@ void testG(std::size_t s)
 
 
 
-void test_A(Value v)
+void testA(Value v)
 {
     testA(v.s);
 }
 
 
 
-void test_B(Value v)
+void testB(Value v)
 {
     testB(v.s);
 }
 
 
 
-void test_C(Value v)
+void testC(Value v)
 {
     testC(v.s);
 }
 
 
 
-void test_D(Value v)
+void testD(Value v)
 {
     testD(v.s);
 }
 
 
 
-void test_E(Value v)
+void testE(Value v)
 {
     testE(v.s);
 }
 
 
 
-void test_F(Value v)
+void testF(Value v)
 {
     testF(v.s);
 }
 
 
 
-void test_G(Value v)
+void testG(Value v)
 {
     testG(v.s);
 }
@@ -368,47 +364,47 @@ int main(int argc, char* argv[])
         
         for (auto b = B0; b <= B1; ++b){
             v.s = size(b);
-            Lapse l("test_A", v.s);
-            for (auto& t : at) t.Call(test_A, v);
+            Lapse l("testA", v.s);
+            for (auto& t : at) t.Call(testA, v);
             for (auto& t : at) t.Wait();
         }
         
         for (auto b = B0; b <= B1; ++b){
             v.s = size(b);
-            Lapse l("test_B", v.s);
-            for (auto& t : at) t.Call(test_B, v);
+            Lapse l("testB", v.s);
+            for (auto& t : at) t.Call(testB, v);
             for (auto& t : at) t.Wait();
         }
         
         for (auto b = B0; b <= B1; ++b){
             v.s = size(b);
-            Lapse l("test_C", v.s);
-            for (auto& t : at) t.Call(test_C, v);
+            Lapse l("testC", v.s);
+            for (auto& t : at) t.Call(testC, v);
             for (auto& t : at) t.Wait();
         }
         
         for (auto b = B0; b <= B1; ++b){
             v.s = size(b);
-            Lapse l("test_D", v.s);
-            for (auto& t : at) t.Call(test_D, v);
+            Lapse l("testD", v.s);
+            for (auto& t : at) t.Call(testD, v);
             for (auto& t : at) t.Wait();
         }
         
         for (auto b = B0; b <= B1; ++b){
             v.s = size(b);
-            Lapse l("test_E", v.s);
-            for (auto& t : at) t.Call(test_E, v);
+            Lapse l("testE", v.s);
+            for (auto& t : at) t.Call(testE, v);
             for (auto& t : at) t.Wait();
         }
         
         for (auto b = B0; b <= B1; ++b){
             v.s = size(b);
-            test_F(v);
+            testF(v);
         }
         
         for (auto b = B0; b <= B1; ++b){
             v.s = size(b);
-            test_G(v);
+            testG(v);
         }
     }
     
