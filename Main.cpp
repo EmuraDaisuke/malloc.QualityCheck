@@ -81,7 +81,6 @@ class Thread final {
         {
             mb.store(false, std::memory_order_release);
             Call(nullptr, Value{});
-            Wait();
             if (mt.joinable()) mt.join();
         }
         
