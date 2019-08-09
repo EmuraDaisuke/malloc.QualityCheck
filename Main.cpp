@@ -32,6 +32,7 @@ constexpr std::size_t size(int b){ return (b)? bit(b-1):0; }
 constexpr std::size_t KiB(std::size_t v){ return (v<<10); }
 constexpr std::size_t MiB(std::size_t v){ return (v<<20); }
 constexpr std::size_t GiB(std::size_t v){ return (v<<30); }
+constexpr uint8_t code(void* p){ return (reinterpret_cast<std::size_t>(p)>>4); }
 
 static constexpr std::size_t T = bit(3);
 
@@ -165,7 +166,7 @@ void Alloc(Value& rv, std::size_t s)
     
     #if CHECK
     {   // 
-        auto c = reinterpret_cast<uint8_t>(rv.p);
+        auto c = code(rv.p);
         assert(rv.p);
         std::memset(rv.p, c, rv.s);
     }
@@ -180,7 +181,7 @@ void Free(Value v)
     {   // 
         auto s = v.s;
         auto p = static_cast<uint8_t*>(v.p);
-        auto c = reinterpret_cast<uint8_t>(p);
+        auto c = code(v.p);
         bool b = true;
         assert(v.p);
         for (; s; --s, ++p) b &= (c == *p);
