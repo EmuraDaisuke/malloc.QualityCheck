@@ -147,6 +147,11 @@ class Thread final {
 
 
 
+using ArrayT = std::array<Thread, T>;
+using ArrayV = std::array<Value, S>;
+
+
+
 void Alloc(Value& rv, std::size_t s)
 {
     {   // 
@@ -206,7 +211,7 @@ void Free(Value v)
 
 void testA(std::size_t s)
 {
-    std::array<Value, S> av;
+    ArrayV av;
 //  Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         for (auto& v : av){ Alloc(v, s); Free(v); }
@@ -217,7 +222,7 @@ void testA(std::size_t s)
 
 void testB(std::size_t s)
 {
-    std::array<Value, S> av;
+    ArrayV av;
 //  Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         for (auto& v : av) Alloc(v, s);
@@ -229,7 +234,7 @@ void testB(std::size_t s)
 
 void testC(std::size_t s)
 {
-    std::array<Value, S> av;
+    ArrayV av;
 //  Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         for (auto& v : av) Alloc(v, s);
@@ -241,7 +246,7 @@ void testC(std::size_t s)
 
 void testD(std::size_t s)
 {
-    std::array<Value, S> av;
+    ArrayV av;
 //  Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         bool e;
@@ -255,7 +260,7 @@ void testD(std::size_t s)
 
 void testE(std::size_t s)
 {
-    std::array<Value, S> av;
+    ArrayV av;
 //  Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         bool e;
@@ -271,8 +276,8 @@ void testE(std::size_t s)
 
 void testF(std::size_t s)
 {
-    std::array<Thread, T> at;
-    std::array<Value, S> av;
+    ArrayT at;
+    ArrayV av;
     Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         std::size_t ot = 0;
@@ -289,8 +294,8 @@ void testF(std::size_t s)
 
 void testG(std::size_t s)
 {
-    std::array<Thread, T> at;
-    std::array<Value, S> av;
+    ArrayT at;
+    ArrayV av;
     Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         for (auto& v : av) Alloc(v, s);
@@ -302,6 +307,31 @@ void testG(std::size_t s)
         }
     }
     for (auto& t : at) t.Wait();
+}
+
+
+
+void testH(std::size_t s)
+{
+    Value v;
+    ArrayT at;
+    std::array<ArrayV, T> aav;
+    Lapse l(__FUNCTION__, s);
+    for (auto n = N; n; --n){
+        for (auto& av : aav){
+            for (auto& v : av) Alloc(v, s);
+        }
+        
+        std::size_t ot = 0;
+        for (auto& av : aav){
+            v.p = &av;
+            at[ot++].Call([](Value pav){
+                auto& av = *reinterpret_cast<ArrayV*>(pav.p);
+                for (auto& v : av) Free(v);
+            }, v);
+        }
+        for (auto& t : at) t.Wait();
+    }
 }
 
 
@@ -341,25 +371,11 @@ void testE(Value v)
 
 
 
-void testF(Value v)
-{
-    testF(v.s);
-}
-
-
-
-void testG(Value v)
-{
-    testG(v.s);
-}
-
-
-
 int main(int argc, char* argv[])
 {
     {   // 
         Value v;
-        std::array<Thread, T> at;
+        ArrayT at;
         Lapse l("total", 0);
         
         for (auto b = B0; b <= B1; ++b){
@@ -398,13 +414,15 @@ int main(int argc, char* argv[])
         }
         
         for (auto b = B0; b <= B1; ++b){
-            v.s = size(b);
-            testF(v);
+            testF(size(b));
         }
         
         for (auto b = B0; b <= B1; ++b){
-            v.s = size(b);
-            testG(v);
+            testG(size(b));
+        }
+        
+        for (auto b = B0; b <= B1; ++b){
+            testH(size(b));
         }
     }
     
