@@ -165,7 +165,6 @@ uint64_t NullptrNum()   { return snNullptr.load(); }
 
 using ArrayT = std::array<Thread, T>;
 using ArrayV = std::array<Value, S>;
-using ArrayVT = std::array<Value, S/T>;
 
 
 
@@ -331,7 +330,7 @@ void testH(std::size_t s)
 {
     Value v;
     ArrayT at;
-    std::array<ArrayVT, T> aav;
+    std::array<ArrayV, T> aav;
     Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         for (auto& av : aav){
@@ -342,7 +341,7 @@ void testH(std::size_t s)
         for (auto& av : aav){
             v.p = &av;
             at[ot++].Call([](Value pav){
-                auto& av = *reinterpret_cast<ArrayVT*>(pav.p);
+                auto& av = *reinterpret_cast<ArrayV*>(pav.p);
                 for (auto& v : av) Free(v);
             }, v);
         }
