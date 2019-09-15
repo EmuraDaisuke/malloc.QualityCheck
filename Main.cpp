@@ -25,7 +25,14 @@
 #include "./tcmalloc.h"
 #elif JEMALLOC//][
 #include "./jemalloc.h"
+#elif KANAMESHIKI//][
+namespace KanameShiki {
+void Free(void* p);
+void* Alloc(std::size_t s);
+};
 #endif//]
+
+
 
 #if 0
 #define CLOG(...)   clog(__VA_ARGS__)
@@ -142,14 +149,14 @@ class Thread final {
     
     
     private:
-        std::mutex mMutexWait;
-        std::mutex mMutexCall;
-        std::condition_variable mWait;
-        std::condition_variable mCall;
+        alignas(64) std::mutex mMutexWait;
+        alignas(64) std::mutex mMutexCall;
+        alignas(64) std::condition_variable mWait;
+        alignas(64) std::condition_variable mCall;
         
-        std::atomic_bool mb;
-        std::atomic_size_t mf;
-        std::atomic<Value> mv;
+        alignas(64) std::atomic_bool mb;
+        alignas(64) std::atomic_size_t mf;
+        alignas(64) std::atomic<Value> mv;
         std::thread mt;
 };
 
@@ -178,6 +185,8 @@ void Alloc(Value& rv, std::size_t s)
         rv.p = tc_malloc(rv.s);
         #elif JEMALLOC
         rv.p = je_malloc(rv.s);
+        #elif KANAMESHIKI
+        rv.p = KanameShiki::Alloc(rv.s);
         #else
         rv.p = malloc(rv.s);
         #endif
@@ -215,6 +224,8 @@ void Free(Value v)
         tc_free(v.p);
         #elif JEMALLOC
         je_free(v.p);
+        #elif KANAMESHIKI
+        KanameShiki::Free(v.p);
         #else
         free(v.p);
         #endif
