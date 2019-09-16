@@ -264,7 +264,7 @@ void testC(std::size_t s)
 //  Lapse l(__FUNCTION__, s);
     for (auto n = N; n; --n){
         for (auto& v : av) Alloc(v, s);
-        for (auto& iv = av.rbegin(); iv != av.rend(); ++iv) Free(*iv);
+        for (auto iv = av.rbegin(); iv != av.rend(); ++iv) Free(*iv);
     }
 }
 
@@ -375,7 +375,7 @@ void testI(std::size_t s)
             std::thread t([](Value& rv){
                 auto& av = *reinterpret_cast<ArrayV*>(rv.p);
                 for (auto& v : av) Alloc(v, rv.s);
-            }, v);
+            }, std::ref(v));
             if (t.joinable()) t.join();
         }
         
