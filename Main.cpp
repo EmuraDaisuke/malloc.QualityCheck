@@ -166,7 +166,7 @@ alignas(64) std::atomic_int snNullptr;
 
 void NullptrReset()     { snNullptr.store(0); }
 void NullptrInc()       { snNullptr.fetch_add(1); }
-uint64_t NullptrNum()   { return snNullptr.load(); }
+int NullptrNum()        { return snNullptr.load(); }
 
 
 

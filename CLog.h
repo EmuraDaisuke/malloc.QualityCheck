@@ -6,21 +6,6 @@
 
 
 
-using i8 = signed char;
-using i16 = signed short;
-using i32 = signed int;
-using i64 = signed long long;
-
-using u8 = unsigned char;
-using u16 = unsigned short;
-using u32 = unsigned int;
-using u64 = unsigned long long;
-
-using f32 = float;
-using f64 = double;
-
-
-
 class CLog final {
     public:
         ~CLog() noexcept;
@@ -42,16 +27,16 @@ class CLog final {
         
         void Put() noexcept;
         void Put(bool v) noexcept;
-        void Put(i8 v) noexcept;
-        void Put(i16 v) noexcept;
-        void Put(i32 v) noexcept;
-        void Put(i64 v) noexcept;
-        void Put(u8 v) noexcept;
-        void Put(u16 v) noexcept;
-        void Put(u32 v) noexcept;
-        void Put(u64 v) noexcept;
-        void Put(f32 v) noexcept;
-        void Put(f64 v) noexcept;
+        void Put(int8_t v) noexcept;
+        void Put(int16_t v) noexcept;
+        void Put(int32_t v) noexcept;
+        void Put(int64_t v) noexcept;
+        void Put(uint8_t v) noexcept;
+        void Put(uint16_t v) noexcept;
+        void Put(uint32_t v) noexcept;
+        void Put(uint64_t v) noexcept;
+        void Put(float v) noexcept;
+        void Put(double v) noexcept;
         void Put(const char* v) noexcept;
         void Put(const void* v) noexcept;
         void Put(const std::string& v) noexcept;
