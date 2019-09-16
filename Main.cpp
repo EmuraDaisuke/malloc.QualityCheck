@@ -162,7 +162,7 @@ class Thread final {
 
 
 
-std::atomic_int snNullptr;
+alignas(64) std::atomic_int snNullptr;
 
 void NullptrReset()     { snNullptr.store(0); }
 void NullptrInc()       { snNullptr.fetch_add(1); }
