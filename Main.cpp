@@ -47,7 +47,7 @@ constexpr std::size_t size(int b){ return (b)? bit(b-1):0; }
 constexpr std::size_t KiB(std::size_t v){ return (v<<10); }
 constexpr std::size_t MiB(std::size_t v){ return (v<<20); }
 constexpr std::size_t GiB(std::size_t v){ return (v<<30); }
-constexpr uint8_t code(void* p){ return (reinterpret_cast<std::size_t>(p)>>4); }
+uint8_t code(void* p){ return (reinterpret_cast<std::size_t>(p)>>4); }
 
 static constexpr std::size_t T = bit(3);
 
